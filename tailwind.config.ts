@@ -18,6 +18,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				mono: ['"Space Mono"', 'monospace'],
+				sans: ['"Inter"', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -61,7 +65,19 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Custom colors for Project Wala
+				techblue: {
+					DEFAULT: '#0A192F',
+					light: '#112240',
+					dark: '#020C1B',
+				},
+				teal: {
+					DEFAULT: '#64FFDA',
+					light: '#9FFFEA',
+					dark: '#4BCEB9',
+				},
+				electricblue: '#0058FF',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
