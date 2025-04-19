@@ -23,13 +23,18 @@ const Index = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    console.log("Submitting form with data:", formData);
 
     try {
-      const { error } = await supabase.functions.invoke('send-contact', {
+      const response = await supabase.functions.invoke('send-contact', {
         body: formData
       });
+      
+      console.log("Function response:", response);
 
-      if (error) throw error;
+      if (response.error) {
+        throw new Error(`Function error: ${response.error.message || JSON.stringify(response.error)}`);
+      }
 
       toast({
         title: "Success!",

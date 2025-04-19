@@ -26,8 +26,10 @@ const handler = async (req: Request): Promise<Response> => {
     const formData: ContactFormData = await req.json();
     const { name, email, project } = formData;
 
+    console.log("Received form data:", { name, email, project });
+    
     const emailResponse = await resend.emails.send({
-      from: "Lovable <onboarding@resend.dev>",
+      from: "Lovable <onboarding@resend.dev>", // Using verified Resend sender
       to: ["info.projecttwala@gmail.com"],
       subject: `New Contact Form Submission from ${name}`,
       html: `
@@ -39,9 +41,9 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    console.log("Email sending response:", emailResponse);
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, data: emailResponse }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -51,7 +53,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error sending email:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message, details: error }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
