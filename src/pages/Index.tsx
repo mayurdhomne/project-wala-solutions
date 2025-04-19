@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import HeroSection from "@/components/sections/HeroSection";
@@ -7,8 +8,53 @@ import ProjectsSection from "@/components/sections/ProjectsSection";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    project: ''
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase.functions.invoke('send-contact', {
+        body: formData
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: "Your message has been sent successfully. We'll get back to you soon!",
+      });
+
+      // Clear form
+      setFormData({ name: '', email: '', project: '' });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to send message. Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
   return (
     <div className="min-h-screen bg-techblue">
       <Navigation />
@@ -27,15 +73,18 @@ const Index = () => {
           </div>
           
           <div className="max-w-2xl mx-auto">
-            <form className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="name" className="block text-gray-300 mb-2 font-mono">Name</label>
                   <input 
                     type="text" 
                     id="name" 
+                    value={formData.name}
+                    onChange={handleInputChange}
                     className="w-full bg-techblue-light text-gray-200 border border-gray-700 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal/50"
                     placeholder="Your Name"
+                    required
                   />
                 </div>
                 <div>
@@ -43,8 +92,11 @@ const Index = () => {
                   <input 
                     type="email" 
                     id="email" 
+                    value={formData.email}
+                    onChange={handleInputChange}
                     className="w-full bg-techblue-light text-gray-200 border border-gray-700 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal/50"
                     placeholder="Your Email"
+                    required
                   />
                 </div>
               </div>
@@ -54,14 +106,21 @@ const Index = () => {
                 <textarea 
                   id="project" 
                   rows={6} 
+                  value={formData.project}
+                  onChange={handleInputChange}
                   className="w-full bg-techblue-light text-gray-200 border border-gray-700 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal/50"
                   placeholder="Describe your project requirements..."
+                  required
                 ></textarea>
               </div>
               
               <div className="text-center">
-                <button type="submit" className="btn-primary px-8">
-                  Submit Request
+                <button 
+                  type="submit" 
+                  className="btn-primary px-8"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Sending...' : 'Submit Request'}
                 </button>
               </div>
             </form>
